@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+		<style type="text/css">
+			*{
+				margin: 0;
+				padding: 0;
+			}
+			.shopAll_box{
+				width: 900px;
+				margin: 100px auto 0 auto;
+				padding: 20px;
+				border: 2px solid #ccc;
+			}
+			.shopAll_item{
+			    display: flex;
+				height: 100px;
+				border-bottom: 1px solid gainsboro;
+				padding-bottom: 10px;
+				margin-bottom: 20px;
+			}
+			.box1{
+				width: 100px;
+				height: 100px;
+			}
+			.box1 img{
+				width: 100%;
+				height: 100%;
+			}
+			.box2{
+				margin: 0 30px;
+			}
+			.box2 h3{
+				margin: 20px 0;
+				text-align: center;
+			}
+			.box2 span{
+				display: inline-block;
+				width: 40px;
+				height: 20px;
+				text-align: center;
+				line-height: 20px;
+				border: 1px solid #ccc;
+				font-size: 12px;
+			}
+			.box3{
+				height: 100px;
+				line-height: 100px;
+				color: #c1434c;
+				margin: 0 50px;
+			}
+			.box4{
+				margin: 40px 50px;
+			}
+			.box4 span{
+				border: 1px solid #ccc;
+				display: inline-block;
+				width: 40px;
+				height: 20px;
+				text-align: center;
+                line-height: 20px;
+			}
+			.box5{
+				width: 100px;
+				height: 50px;
+				color: #fff;
+				text-align: center;
+				line-height: 50px;
+				background-color: #c1434c;
+				margin: 30px;
+			}
+			.shopSelect_box{
+				width: 940px;
+				margin: 50px auto;
+				color: #ccc;
+			}
+			.shopSelect_box h2{
+				background-color: #f2f2f2;
+				height: 40px;
+				line-height: 40px;
+				text-align: center;
+				color: #000000;
+			}
+			.box11{
+			     width: 100px;
+				 height: 100px;
+			}	
+			.box11 img{
+				width: 100%;
+				height: 100%;
+			}
+			.box22,.box33,.box44,.box55{
+				line-height: 100px;
+				margin: 0 30px;
+			}
+			.box66{
+				width: 80px;
+				height: 40px;
+				line-height: 40px;
+				color: #000000;
+				text-align: center;
+				background-color: #ccc;
+				margin: 30px 50px;
+				margin-left: 200px;
+			}
+			.shopSelect_box .shopAll_item{
+				margin-top: 20px;
+			}
+		    h1{
+				width: 940px;
+				margin: 20px auto;
+			}
+			.activeStyle{
+				color: #fff;
+				background-color: #006600;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- 入门vue购物车demo -->
+		<div id="app">
+			<shop-all :alldata='allList'></shop-all>
+			<shop-select :selectdata='selectList'></shop-select>
+			<h1 v-if="selectList.length>0">总价：{{allPrice}}元</h1>
+		</div>
+		
+		<template id="shopAll">
+			<div class="shopAll_box">
+				<div class="shopAll_item" v-for="(itemParent,parentIndex) in alldata" :key="itemParent.id">
+					<div class="box1">
+						<img :src="itemParent.img" >
+					</div>
+					<div class="box2">
+						<h3>{{itemParent.name}}</h3>
+						<div class="color_box">
+							<span v-for="(itemChild,childIndex) in itemParent.colors" 
+							      :key="itemChild" 
+								  @click="selectColorFun(itemParent,parentIndex,childIndex,itemChild)"
+								  :class="{activeStyle:itemParent.i==childIndex}">{{itemChild}}</span>
+						</div>
+					</div>
+					<div class="box3">{{itemParent.price}}元</div>
+					<div class="box4">
+						<span @click="minusFun(itemParent)">-</span>
+						<span id="num_span">{{itemParent.selectNum}}</span>
+						<span @click="addFun(itemParent)">+</span>
+					</div>
+					<div class="box5" @click="addCartFun(itemParent)">加入购物车</div>
+				</div>
+			</div>
+		</template>
+		
+		<template id="shopSelect">
+			<div class="shopSelect_box" v-if="selectdata.length>0">
+				<h2>已选中商品</h2>
+				<div class="shopAll_item" v-for="(item) in selectdata" :key="item.id">
+					<div class="box11">
+						<img :src="item.img" >
+					</div>
+					<div class="box22">{{item.name}}</div>
+					<div class="box33">{{item.selectColor}}</div>
+					<div class="box44">{{item.totalPrice}}元</div>
+					<div class="box55">x{{item.selectNum}}</div>
+					<div class="box66" @click="deleteFun(item)">删除</div>
+				</div>
+			</div>
+		</template>
+	</body>
+</html>
+<script type="text/javascript">
+	const app = new Vue({
+		el:"#app",
+		computed:{
+			allPrice(){
+				let totalNum = 0
+				this.selectList.forEach(item => {
+					totalNum += item.totalPrice
+				})
+				return totalNum
+			}
+		},
+		data(){
+			return {
+			    allList:[
+					{
+						id:0,
+						name:"商品1",
+						price:20,
+						img:"./img/vue-cart-img/01-1.png",
+						colors:['粉色1','黄色1','蓝色1','绿色1']
+					},
+					{
+						id:1,
+						name:"商品2",
+						price:30,
+						img:"./img/vue-cart-img/02-1.png",
+						colors:['粉色2','黄色2','蓝色2','绿色2']
+					},
+					{
+						id:2,
+						name:"商品3",
+						price:40,
+						img:"./img/vue-cart-img/03-1.png",
+						colors:['粉色3','黄色3','蓝色3','绿色3']
+					}
+				],
+				selectList:[
+					// {
+					// 	id:0,
+					// 	name:"商品1",
+					// 	price:20,
+					// 	img:"./img/vue-cart-img/01-1.png",
+					// 	colors:['粉色1','黄色1','蓝色1','绿色1'],
+					// 	selectNum:1,
+					// 	selectColor:"粉色1",
+					// 	totalPrice:0
+					// },
+				]
+			}
+		},
+		components:{
+			// 所有商品列表组件
+			ShopAll:{
+				template:"#shopAll",
+				props:{
+					alldata:Array
+				},
+				created() {
+					
+				},
+				methods:{
+					// 选颜色
+					selectColorFun(itemParent,parentIndex,childIndex,itemChild){
+						// 添加没有的属性用$set     切勿直接this.itemParent.i=childIndex
+						this.$set(itemParent,'i',childIndex)  //切换颜色选中
+						itemParent.img = `./img/vue-cart-img/0${parentIndex+1}-${childIndex+1}.png`  //切换图片
+						itemParent.selectColor = itemChild
+					},
+					// 数量减
+					minusFun(itemParent){
+						if(itemParent.selectNum == 0){
+							alert("不能减了~")
+						}else{
+							itemParent.selectNum --
+							itemParent.totalPrice = itemParent.price * itemParent.selectNum
+							// 当前项数量减到0   就在已选裂变中删除当前项  findIndex方法找下标
+							let n = this.$parent.selectList.findIndex(item => item.selectNum==0)
+							console.log(2222,n)
+							if(n!=-1){
+								this.$parent.selectList.splice(n,1)
+							}
+						}
+						console.log(11,this.$parent.selectList)
+					},
+					// 数量加
+					addFun(itemParent){
+						itemParent.selectNum ++
+						itemParent.totalPrice = itemParent.price * itemParent.selectNum
+					},
+					// 加入购物车
+					addCartFun(itemParent){
+						if(itemParent.selectNum>0){
+							let newData = this.$parent.selectList.find(item => item.id==itemParent.id)  //判断添加的那个商品是否已经添加了
+							// newData?newData:this.$parent.selectList.push(itemParent)  //子组件修改父组件的data    也可以用$emit  自定义事件处理
+							if(newData){  //此 if 意思同上行三元操作
+								alert("此商品已经加了~")
+							}else{
+								this.$parent.selectList.push(itemParent)
+							}
+						}else{
+							alert("数量是0，加个毛线~")
+						}
+					}
+				},
+			},
+			// 已选商品列表组件
+			ShopSelect:{
+				template:"#shopSelect",
+				props:{
+					selectdata:Array
+				},
+				methods:{
+					deleteFun(e){
+						let m = this.$parent.selectList.findIndex(item => item.id==e.id)
+						this.$parent.selectList.splice(m,1)
+					}
+				}
+			}
+		},
+		
+	})
+	app.$data.allList.map(item => {
+		app.$set(item,'selectNum',0)
+		app.$set(item,'selectColor',item.colors[0])
+		app.$set(item,'totalPrice',0)
+		app.$set(item,'i',0)
+	})
+	console.log("vue实例",app.$data.allList)
+</script>
